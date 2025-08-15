@@ -17,7 +17,7 @@ git init
 git add .
 git commit -m "Initial n8n render deployment"
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/n8n-render.git
+git remote add origin https://github.com/joomcwegv/n8n-render.git
 git push -u origin main
 ```
 
@@ -30,8 +30,8 @@ git push -u origin main
 ### 3. Blueprint жасау
 
 1. Render Dashboard-та "New +" басыңыз
-2. "Blueprint" таңдаңіз
-3. GitHub repository-ңізді қосыңыз
+2. "Blueprint" таңдаңыз
+3. GitHub repository-ңізді қосыңыз: `joomcwegv/n8n-render`
 4. `render.yaml` файлын таңдаңыз
 5. "Create Blueprint" басыңыз
 
@@ -129,4 +129,5 @@ services:
 
 ---
 
+**Repository**: [https://github.com/joomcwegv/n8n-render](https://github.com/joomcwegv/n8n-render)  
 **Render - бұл n8n-ді деплой етуге ең оңай жол!** 🚀
