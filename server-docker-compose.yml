@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "80:5678"  # HTTP порты (80)
+      - "443:5678" # HTTPS порты (443) - егер SSL болса
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://YOUR_SERVER_IP/
+      - GENERIC_TIMEZONE=Asia/Almaty
+      - N8N_ENCRYPTION_KEY=your-secret-encryption-key-here
+      - N8N_LOG_LEVEL=info
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PAYLOAD_SIZE_MAX=16
+      - N8N_EDITOR_BASE_URL=http://YOUR_SERVER_IP/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx (опционально - егер SSL қолдану болса)
+  nginx:
+    image: nginx:alpine
+    container_name: n8n_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - n8n
+    networks:
+      - n8n_network
+    profiles:
+      - ssl
+
+volumes:
+  n8n_data:
+    driver: local
+
+networks:
+  n8n_network:
+    driver: bridge
