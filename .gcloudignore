@@ -1,0 +1,9 @@
+# Docker және Git-ке қатысты файлдар
+.dockerignore
+.gitignore
+.git
+
+# Жергілікті ортаға арналған файлдар
+.env
+docker-compose.yml
+README.md

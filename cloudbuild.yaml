@@ -1,0 +1,32 @@
+steps:
+  # 1. Docker образын құрастыру
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/n8n-cloudrun:$COMMIT_SHA', '.']
+
+  # 2. Образды Google Container Registry-ге жүктеу
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/n8n-cloudrun:$COMMIT_SHA']
+
+  # 3. Образды Google Cloud Run-ға орнату
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'n8n-service' # <-- Cloud Run қызметінің атауын осында өзгертіңіз
+      - '--image=gcr.io/$PROJECT_ID/n8n-cloudrun:$COMMIT_SHA'
+      - '--region=us-central1' # <-- Орналастыру аймағын таңдаңыз
+      - '--platform=managed'
+      - '--allow-unauthenticated' # <-- Қызметке жалпыға қолжетімділік беру (қажет болса)
+      - '--port=5678'
+      # Cloud SQL инстансына қосылу. <...> орнына өз мәніңізді қойыңыз.
+      # Оны `gcloud sql instances describe <INSTANCE_NAME>` командасымен табуға болады.
+      - '--add-cloudsql-instances=<YOUR_INSTANCE_CONNECTION_NAME>'
+      # Орта айнымалылары. <...> белгілері бар жерлерді Cloud SQL баптауларымен толтырыңыз.
+      # НАЗАР АУДАРЫҢЫЗ: Құпия сөзді (DB_POSTGRESDB_PASSWORD) осылай беру қауіпсіз емес.
+      # Продакшн үшін Google Secret Manager қолданған дұрыс.
+      - >-
+        --set-env-vars=DB_TYPE=postgresdb,DB_POSTGRESDB_DATABASE=<YOUR_DB_NAME>,DB_POSTGRESDB_USER=<YOUR_DB_USER>,DB_POSTGRESDB_PASSWORD=<YOUR_DB_PASSWORD>,DB_POSTGRESDB_HOST=/cloudsql/<YOUR_INSTANCE_CONNECTION_NAME>
+
+images:
+  - 'gcr.io/$PROJECT_ID/n8n-cloudrun:$COMMIT_SHA'
